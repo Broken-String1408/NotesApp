@@ -2,18 +2,17 @@ import json
 import datetime
 from notes.Note import Note
 import os.path
-from operator import attrgetter
 
+class NoteCRUD():
 
-class NoteCRUD:
     __FILE_NAME = "Notes.json"
 
     def __init__(self):
         if not os.path.exists(NoteCRUD.__FILE_NAME):
             self.__notes = []
-        else:
+        else :
             self.__notes = self.__loadNotesFromFile()
-            self.__sortNotes()
+
 
     def __addNote(self, newNote: Note):
         self.__notes.append(newNote)
@@ -29,8 +28,10 @@ class NoteCRUD:
         with open(NoteCRUD.__FILE_NAME, "w", encoding='utf-8') as notes_file:
             notes_file.write(json_string)
 
-    def __sortNotes(self):
-        self.__notes.sort(key=attrgetter("date"), reverse=True)
+    def __findNoteById(self, id: int):
+        for note in self.__notes:
+            if note.id == id:
+                return note
 
     def createNewNote(self, title: str, body: str):
         timeStamp = round(datetime.datetime.now().timestamp())
@@ -40,16 +41,16 @@ class NoteCRUD:
     def readAllNotes(self):
         return self.__notes.copy()
 
-    def updateNote(self, index: int, title: str, body: str):
-        self.__notes[index].title = title
-        self.__notes[index].body = body
-        self.__notes[index].date = round(datetime.datetime.now().timestamp())
-        self.__writeNotesToFile()
-        self.__sortNotes()
-
-    def deleteNote(self, index: int):
-        self.__notes.pop(index)
+    def updateNote(self, id: int, title: str, body: str):
+        noteToUpdate = self.__findNoteById(id)
+        noteToUpdate.title = title
+        noteToUpdate.body = body
+        noteToUpdate.date = round(datetime.datetime.now().timestamp())
         self.__writeNotesToFile()
 
+    def deleteNote(self, id: int):
+        noteToDelete = self.__findNoteById(id)
+        self.__notes.remove(noteToDelete)
+        self.__writeNotesToFile()
 
 
